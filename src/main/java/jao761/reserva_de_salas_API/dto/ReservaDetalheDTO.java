@@ -8,7 +8,8 @@ public record ReservaDetalheDTO(
         LocalDate inicio,
         LocalDate fim,
         Long salaId,
-        Long usuarioId
+        Long usuarioId,
+        boolean cancelada
 
 ) {
 }

@@ -4,7 +4,8 @@ public record UsuarioDetalheDTO (
 
     Long id,
     String nome,
-    String email
+    String email,
+    boolean ativo
 
 ) {
 }

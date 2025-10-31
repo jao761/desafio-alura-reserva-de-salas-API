@@ -3,17 +3,20 @@ package jao761.reserva_de_salas_API.controller;
 import jao761.reserva_de_salas_API.dto.SalaAtualizarDTO;
 import jao761.reserva_de_salas_API.dto.SalaDTO;
 import jao761.reserva_de_salas_API.dto.SalaDetalheDTO;
+import jao761.reserva_de_salas_API.dto.SalaListarDTO;
 import jao761.reserva_de_salas_API.model.Sala;
 import jao761.reserva_de_salas_API.service.SalaService;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.web.PageableDefault;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
 import java.net.URI;
-import java.util.List;
 
 @RestController
-@RequestMapping("salas")
+@RequestMapping("api/v1/salas")
 public class SalaController {
 
     private final SalaService service;
@@ -34,8 +37,8 @@ public class SalaController {
     }
 
     @GetMapping
-    public ResponseEntity<List<SalaDetalheDTO>> listarSalas() {
-        List<SalaDetalheDTO> salas = service.listarPaginado();
+    public ResponseEntity<Page<SalaListarDTO>> listarSalas(@PageableDefault(size = 10, page = 0) Pageable pageable) {
+        Page<SalaListarDTO> salas = service.listarPaginado(pageable);
         return ResponseEntity.ok(salas);
     }
 
@@ -53,9 +56,14 @@ public class SalaController {
 
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> deletarSala(@PathVariable Long id) {
-        service.deletarSala(id);
+        service.alterarSala(id, false);
         return ResponseEntity.noContent().build();
     }
 
+    @PatchMapping("/{id}")
+    public ResponseEntity<Void> reativarSala(@PathVariable Long id) {
+        service.alterarSala(id, true);
+        return ResponseEntity.noContent().build();
+    }
 
 }

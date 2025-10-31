@@ -1,10 +1,15 @@
 package jao761.reserva_de_salas_API.service;
 
+import jakarta.transaction.Transactional;
 import jao761.reserva_de_salas_API.dto.*;
 import jao761.reserva_de_salas_API.model.Reserva;
 import jao761.reserva_de_salas_API.model.ReservaFactory;
 import jao761.reserva_de_salas_API.model.Sala;
 import jao761.reserva_de_salas_API.model.Usuario;
+import jao761.reserva_de_salas_API.repository.ReservaRepository;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.stereotype.Repository;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
@@ -15,11 +20,12 @@ import java.util.NoSuchElementException;
 @Service
 public class ReservaService {
 
+    private final ReservaRepository repository;
     private final SalaService salaService;
     private final UsuarioService usuarioService;
-    List<Reserva> repository = new ArrayList<>();
 
-    public ReservaService(SalaService salaService, UsuarioService usuarioService) {
+    public ReservaService(ReservaRepository repository, SalaService salaService, UsuarioService usuarioService) {
+        this.repository = repository;
         this.salaService = salaService;
         this.usuarioService = usuarioService;
     }
@@ -35,66 +41,43 @@ public class ReservaService {
             reserva = ReservaFactory.criarReservaComInicioFimIndeterminado(dto.inicio(), sala, usuario);
         }
 
-        validarSobreposicaoSala(reserva);
-        validarSobreposicaoUsuario(reserva);
-        repository.add(reserva);
+        boolean existeSobreposicao = repository.existeSobreposicao(reserva.getSala().getId(), reserva.getSala().getId(),
+                reserva.getInicio(), reserva.getFim());
+
+        if (existeSobreposicao) {
+            throw new IllegalStateException("Usuario com data indisponivel ou sala com reserva indisponivel");
+        }
+
+        repository.save(reserva);
         return reserva;
     }
 
-    public List<ReservaDetalheDTO> listarPaginado() {
-        return repository.stream()
-                .map(r -> new ReservaDetalheDTO(r.getId(), r.getInicio(), r.getFim(),
-                        r.getSala().getId(), r.getUsuario().getId()))
-                .toList();
+    public Page<ReservaListarDTO> listarPaginado(Pageable pageable) {
+        return repository.findAllByCancelarFalse(pageable)
+                .map(r -> new ReservaListarDTO(r.getId(), r.getInicio(), r.getFim(),
+                        r.getSala().getId(), r.getUsuario().getId()));
     }
 
     public ReservaDetalheDTO visualizarReserva(Long id) {
         Reserva reserva = retornarReserva(id);
         return new ReservaDetalheDTO(reserva.getId(), reserva.getInicio(), reserva.getFim(),
-                reserva.getSala().getId(), reserva.getUsuario().getId());
+                reserva.getSala().getId(), reserva.getUsuario().getId(), reserva.isCancelar());
     }
 
     public Reserva retornarReserva(Long id) {
-        return repository.stream()
-                .filter(r -> r.getId().equals(id))
-                .findFirst()
+        return repository.findById(id)
                 .orElseThrow(() -> new NoSuchElementException("Reserva não encontrada com id: " + id));
     }
 
+    @Transactional
     public void atualizarReserva(ReservaAtualizarDTO dto) {
         Reserva reserva = retornarReserva(dto.id());
         reserva.atualizar(dto.inicio(), dto.fim());
     }
 
+    @Transactional
     public void cancelarReserva(Long id) {
         Reserva reserva = retornarReserva(id);
         reserva.setCancelar(true);
     }
-
-    public void validarSobreposicaoSala(Reserva reserva) {
-        boolean existeSobreposicao = repository.stream()
-                .filter(r -> r.getSala().equals(reserva.getSala()) && !r.isCancelar())
-                .anyMatch(r ->
-                        reserva.getInicio().isBefore(r.getFim()) && reserva.getFim().isAfter(r.getInicio())
-                );
-
-        if (existeSobreposicao) {
-            throw new IllegalStateException("Esta data não está disponível");
-        }
-    }
-
-    public void validarSobreposicaoUsuario(Reserva reserva) {
-        boolean exiteSobreposicaoUsuario = repository.stream()
-                .filter(r -> r.getUsuario().equals(reserva.getUsuario()) && !r.isCancelar())
-                .anyMatch(r ->
-                        reserva.getInicio().isBefore(r.getFim()) && reserva.getFim().isAfter(r.getInicio())
-                );
-
-        if (exiteSobreposicaoUsuario) {
-            throw new IllegalStateException("Usuario ja tem data marcada para esse diax'");
-        }
-    }
-
-
-
 }

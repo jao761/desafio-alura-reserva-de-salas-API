@@ -3,8 +3,12 @@ package jao761.reserva_de_salas_API.controller;
 import jao761.reserva_de_salas_API.dto.ReservaAtualizarDTO;
 import jao761.reserva_de_salas_API.dto.ReservaCadastroDTO;
 import jao761.reserva_de_salas_API.dto.ReservaDetalheDTO;
+import jao761.reserva_de_salas_API.dto.ReservaListarDTO;
 import jao761.reserva_de_salas_API.model.Reserva;
 import jao761.reserva_de_salas_API.service.ReservaService;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.web.PageableDefault;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
@@ -13,7 +17,7 @@ import java.net.URI;
 import java.util.List;
 
 @RestController
-@RequestMapping("reservas")
+@RequestMapping("api/v1/reservas")
 public class ReservaController {
 
     private final ReservaService service;
@@ -34,8 +38,8 @@ public class ReservaController {
     }
 
     @GetMapping
-    public ResponseEntity<List<ReservaDetalheDTO>> listarUsuarios() {
-        List<ReservaDetalheDTO> reservas = service.listarPaginado();
+    public ResponseEntity<Page<ReservaListarDTO>> listarUsuarios(@PageableDefault(size = 10, page = 0)Pageable pageable) {
+        Page<ReservaListarDTO> reservas = service.listarPaginado(pageable);
         return ResponseEntity.ok(reservas);
     }
 

@@ -9,7 +9,7 @@ public class ReservaFactory {
             throw new IllegalStateException("A data de início não pode ser posterior à data de fim!");
         }
 
-        return new Reserva(inicio, fim, sala, usuario);
+        return new Reserva(inicio, fim.plusDays(1), sala, usuario);
     }
 
     public static Reserva criarReservaComInicioFimIndeterminado(LocalDate inicio, Sala sala, Usuario usuario) {
