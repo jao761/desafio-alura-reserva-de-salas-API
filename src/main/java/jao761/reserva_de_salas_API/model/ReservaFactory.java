@@ -6,7 +6,7 @@ public class ReservaFactory {
 
     public static Reserva criarReservaComInicioFim(LocalDate inicio, LocalDate fim, Sala sala, Usuario usuario) {
          if (!fim.isAfter(inicio)) {
-            throw new IllegalStateException("A data de início não pode ser posterior à data de fim!");
+            throw new IllegalArgumentException  ("A data de início não pode ser posterior à data de fim!");
         }
 
         return new Reserva(inicio, fim.plusDays(1), sala, usuario);

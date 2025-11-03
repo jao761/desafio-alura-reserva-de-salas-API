@@ -1,38 +1,38 @@
 package jao761.reserva_de_salas_API.service;
 
+import jakarta.persistence.EntityNotFoundException;
 import jakarta.transaction.Transactional;
-import jao761.reserva_de_salas_API.dto.*;
+import jao761.reserva_de_salas_API.dto.ReservaAtualizarDTO;
+import jao761.reserva_de_salas_API.dto.ReservaCadastroDTO;
+import jao761.reserva_de_salas_API.dto.ReservaDetalheDTO;
+import jao761.reserva_de_salas_API.dto.ReservaListarDTO;
 import jao761.reserva_de_salas_API.model.Reserva;
 import jao761.reserva_de_salas_API.model.ReservaFactory;
 import jao761.reserva_de_salas_API.model.Sala;
 import jao761.reserva_de_salas_API.model.Usuario;
 import jao761.reserva_de_salas_API.repository.ReservaRepository;
+import jao761.reserva_de_salas_API.repository.SalaRepository;
+import jao761.reserva_de_salas_API.repository.UsuarioRepository;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
-import org.springframework.stereotype.Repository;
 import org.springframework.stereotype.Service;
-
-import java.time.LocalDate;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.NoSuchElementException;
 
 @Service
 public class ReservaService {
 
     private final ReservaRepository repository;
-    private final SalaService salaService;
-    private final UsuarioService usuarioService;
+    private final SalaRepository salaRepository;
+    private final UsuarioRepository usuarioRepository;
 
-    public ReservaService(ReservaRepository repository, SalaService salaService, UsuarioService usuarioService) {
+    public ReservaService(ReservaRepository repository, SalaRepository salaRepository, UsuarioRepository usuarioRepository) {
         this.repository = repository;
-        this.salaService = salaService;
-        this.usuarioService = usuarioService;
+        this.salaRepository = salaRepository;
+        this.usuarioRepository = usuarioRepository;
     }
 
     public Reserva fazerReserva(ReservaCadastroDTO dto) {
-        Sala sala = salaService.retornarSala(dto.salaId());
-        Usuario usuario = usuarioService.retornarUsuario(dto.usuarioId());
+        Sala sala = salaRepository.getReferenceById(dto.salaId());
+        Usuario usuario = usuarioRepository.getReferenceById(dto.usuarioId());
         Reserva reserva;
 
         if (dto.fim() != null) {
@@ -45,7 +45,7 @@ public class ReservaService {
                 reserva.getInicio(), reserva.getFim());
 
         if (existeSobreposicao) {
-            throw new IllegalStateException("Usuario com data indisponivel ou sala com reserva indisponivel");
+            throw new IllegalArgumentException("Usuario com data indisponivel ou sala com reserva indisponivel");
         }
 
         repository.save(reserva);
@@ -64,9 +64,9 @@ public class ReservaService {
                 reserva.getSala().getId(), reserva.getUsuario().getId(), reserva.isCancelar());
     }
 
-    public Reserva retornarReserva(Long id) {
+    private Reserva retornarReserva(Long id) {
         return repository.findById(id)
-                .orElseThrow(() -> new NoSuchElementException("Reserva não encontrada com id: " + id));
+                .orElseThrow(() -> new EntityNotFoundException("Reserva não encontrada com id: " + id));
     }
 
     @Transactional

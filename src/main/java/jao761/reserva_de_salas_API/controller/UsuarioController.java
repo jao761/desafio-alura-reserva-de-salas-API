@@ -1,7 +1,8 @@
 package jao761.reserva_de_salas_API.controller;
 
+import jakarta.validation.Valid;
 import jao761.reserva_de_salas_API.dto.UsuarioAtualizarDTO;
-import jao761.reserva_de_salas_API.dto.UsuarioDTO;
+import jao761.reserva_de_salas_API.dto.UsuarioCadastroDTO;
 import jao761.reserva_de_salas_API.dto.UsuarioDetalheDTO;
 import jao761.reserva_de_salas_API.dto.UsuarioListarDTO;
 import jao761.reserva_de_salas_API.model.Usuario;
@@ -26,7 +27,7 @@ public class UsuarioController {
     }
 
     @PostMapping
-    public ResponseEntity<Void> cadastrarUsuario(@RequestBody UsuarioDTO dto) {
+    public ResponseEntity<Void> cadastrarUsuario(@RequestBody @Valid UsuarioCadastroDTO dto) {
         Usuario usuario = service.cadastarUsuario(dto);
         URI uri = ServletUriComponentsBuilder
                 .fromCurrentRequest()
@@ -49,7 +50,7 @@ public class UsuarioController {
     }
 
     @PutMapping
-    public ResponseEntity<Void> atualizarUsuario(@RequestBody UsuarioAtualizarDTO dto) {
+    public ResponseEntity<Void> atualizarUsuario(@RequestBody @Valid UsuarioAtualizarDTO dto) {
         service.atualizarUsuario(dto);
         return ResponseEntity.ok().build();
     }

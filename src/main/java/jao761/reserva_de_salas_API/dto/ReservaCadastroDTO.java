@@ -1,13 +1,15 @@
 package jao761.reserva_de_salas_API.dto;
 
+import jakarta.validation.constraints.NotNull;
+
 import java.time.LocalDate;
 
 public record ReservaCadastroDTO(
 
-        LocalDate inicio,
+        @NotNull LocalDate inicio,
         LocalDate fim,
-        Long salaId,
-        Long usuarioId
+        @NotNull Long salaId,
+        @NotNull Long usuarioId
 
 ) {
 }

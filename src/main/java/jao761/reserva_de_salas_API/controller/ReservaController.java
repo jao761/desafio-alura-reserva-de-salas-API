@@ -1,5 +1,6 @@
 package jao761.reserva_de_salas_API.controller;
 
+import jakarta.validation.Valid;
 import jao761.reserva_de_salas_API.dto.ReservaAtualizarDTO;
 import jao761.reserva_de_salas_API.dto.ReservaCadastroDTO;
 import jao761.reserva_de_salas_API.dto.ReservaDetalheDTO;
@@ -27,7 +28,7 @@ public class ReservaController {
     }
 
     @PostMapping
-    public ResponseEntity<Void> fazerReserva(@RequestBody ReservaCadastroDTO dto) {
+    public ResponseEntity<Void> fazerReserva(@RequestBody @Valid ReservaCadastroDTO dto) {
         Reserva reserva = service.fazerReserva(dto);
         URI uri = ServletUriComponentsBuilder
                 .fromCurrentRequest()
@@ -50,7 +51,7 @@ public class ReservaController {
     }
 
     @PutMapping
-    public ResponseEntity<Void> atualizarReserva(@RequestBody ReservaAtualizarDTO dto) {
+    public ResponseEntity<Void> atualizarReserva(@RequestBody @Valid ReservaAtualizarDTO dto) {
         service.atualizarReserva(dto);
         return ResponseEntity.ok().build();
     }

@@ -55,13 +55,13 @@ public class Sala {
 
     public void verificarSalaAtiva() {
         if (!this.ativo) {
-            throw new IllegalStateException("A sala está inativa!");
+            throw new IllegalArgumentException("A sala está inativa!");
         }
     }
 
     public void verificarCapacidade() {
         if (this.capacidade <= 0) {
-            throw new IllegalStateException("A sala deve ter capacidade positiva!");
+            throw new IllegalArgumentException("A sala deve ter capacidade positiva!");
         }
     }
 
