@@ -30,6 +30,7 @@ public class ReservaService {
         this.usuarioRepository = usuarioRepository;
     }
 
+    @Transactional
     public Reserva fazerReserva(ReservaCadastroDTO dto) {
         Sala sala = salaRepository.getReferenceById(dto.salaId());
         Usuario usuario = usuarioRepository.getReferenceById(dto.usuarioId());
@@ -41,7 +42,7 @@ public class ReservaService {
             reserva = ReservaFactory.criarReservaComInicioFimIndeterminado(dto.inicio(), sala, usuario);
         }
 
-        boolean existeSobreposicao = repository.existeSobreposicao(reserva.getSala().getId(), reserva.getSala().getId(),
+        boolean existeSobreposicao = repository.existeSobreposicao(reserva.getSala().getId(), reserva.getUsuario().getId(),
                 reserva.getInicio(), reserva.getFim());
 
         if (existeSobreposicao) {
