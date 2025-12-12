@@ -55,7 +55,7 @@ No diretório raiz do projeto, execute:
 
 ```bash
 docker compose up -d --build
-
+```
 
 ## 📫 Contribuindo para reserva-de-salas-API
 
@@ -72,3 +72,4 @@ Como alternativa, consulte a documentação do GitHub em [como criar uma solicit
 ## 👤 Autor
 
 ### jao761
+
