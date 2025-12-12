@@ -1,0 +1,42 @@
+version: '3.8'
+
+services:
+  postgres:
+    image: postgres:16
+    container_name: reservas-db
+    environment:
+      POSTGRES_DB: reservas_container_db
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: root
+    ports:
+      - "5433:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    networks:
+      - reserva-network
+
+  api:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: reserva-de-salas-api
+    depends_on:
+      - postgres
+    environment:
+      SPRING_APPLICATION_NAME: reserva-de-salas-API
+      SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/reservas_container_db
+      SPRING_DATASOURCE_USERNAME: postgres
+      SPRING_DATASOURCE_PASSWORD: root
+      SPRING_JPA_DATABASE_PLATFORM: org.hibernate.dialect.PostgreSQLDialect
+      SPRING_JPA_HIBERNATE_DDL_AUTO: update
+      SPRING_JPA_SHOW_SQL: "true"
+    ports:
+      - "8080:8080"
+    networks:
+      - reserva-network
+
+networks:
+  reserva-network:
+
+volumes:
+  postgres_data:
